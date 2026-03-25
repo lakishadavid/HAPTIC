@@ -602,7 +602,10 @@ def graph_from_tiles(tile_df, t1, t2, male=False):
     nodes = it.chain(*tile_df.apply(lambda x: [[i, j, ("cluster1", x.name), x.chromosome==23 and male] for i,j in zip(x.cluster1, x.segs1)]\
                             + [[i, j, ("cluster2", x.name), x.chromosome==23 and male] for i,j in zip(x.cluster2, x.segs2)], axis=1).values)
     node_df = pd.DataFrame(nodes, columns=["tuple_id", "seg_index", "subtile", "maternal"])
-    node_df[["id2", "n", "k", "l"]] = node_df["tuple_id"].apply(lambda x: list(x)).values.tolist()
+    if len(node_df) > 0:
+        node_df[["id2", "n", "k", "l"]] = node_df["tuple_id"].apply(lambda x: list(x)).values.tolist()
+    else:
+        node_df["id2"] = node_df["n"] = node_df["k"] = node_df["l"] = pd.Series(dtype=object)
 
     # only want to consider segments that are long enough or belong to close enough relatives
     tmp = node_df[node_df.apply(lambda x: x.l > t1 and x.k > t2, axis=1)]
